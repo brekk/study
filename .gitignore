@@ -1,0 +1,15 @@
+# core build
+build
+
+# modules
+madlib_modules
+node_modules
+
+# temp files
+.run
+.module_cache
+.docs
+.coverage
+.tests
+.vscode
+.repl

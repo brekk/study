@@ -1,0 +1,25 @@
+import Wish from "Wish"
+
+import { asyncReport, caseN2, caseN3, caseN4, caseN5, report } from "./Study"
+
+
+
+quinary = (a, b, c, d, e) => (((c + d) * e) + b) / a
+
+report(caseN5(quinary), "function with 5 args", [#[#[1, 2, 3, 4, 5], 37]])
+
+quaternary = (a, b, c, d) => ((b + c) * d) / a
+
+report(caseN4(quaternary), "function with 4 args", [#[#[1, 2, 3, 4], 20]])
+
+ternary = (a, b, c) => (b + c) / a
+
+report(caseN3(ternary), "function with 3 args", [#[#[1, 2, 3], 5]])
+
+binary = (a, b) => b / a
+
+report(caseN2(binary), "function with 2 args", [#[#[1, 2], 2]])
+
+multi = map((x) => x * 2)
+
+asyncReport(multi, "asynchronous test", [#[Wish.good(5), 10]])
