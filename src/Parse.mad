@@ -1,0 +1,45 @@
+import { Left, Right } from "Either"
+import IO from "IO"
+import Parse from "Parse"
+import String from "String"
+import Test from "Test"
+import Wish from "Wish"
+
+
+
+TestError = Test.Error
+
+
+testParser :: (Show a, Eq a) => Parse.Parser a -> String -> a -> Wish Test.AssertionError {}
+export testParser = (parser, toParse, expected) => pipe(
+  Parse.runParser(parser),
+  where {
+    Left(Parse.Error(Parse.Loc(a, b, c))) =>
+      do {
+        before = String.slice(0, a, toParse)
+        after = String.slice(a, String.length(toParse), toParse)
+        parseError = `Parsing error: (${show(a)} ${show(b)} ${show(c)})`
+        detail = `
+██████████████████████
+➡︎${IO.green(before)}⬅︎
+▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚
+◣${IO.red(after)}◢
+██████████████████████`
+        IO.putLine(parseError ++ detail)
+        return Wish.bad(TestError(parseError))
+      }
+
+    Right(res) =>
+      Test.assertEquals(res, expected)
+  },
+)(toParse)
+
+parseTest :: (Show a, Eq a) => String
+  -> Parse.Parser a
+  -> String
+  -> a
+  -> Wish Test.TestResult Test.TestResult
+export parseTest = (testName, parser, toParse, expected) => Test.test(
+  testName,
+  () => testParser(parser, toParse, expected),
+)
