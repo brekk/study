@@ -1,0 +1,28 @@
+import P from "Parse"
+import String from "String"
+
+import { testParseFile, testParser } from "@/Parse"
+
+
+
+type Greeting = Greeting(String)
+
+
+hi :: P.Parser Greeting
+hi = do {
+  _ <- P.string("hi")
+  who <- pipe(
+    P.many,
+    map(
+      pipe(
+        String.fromList,
+        String.trim,
+      ),
+    ),
+  )(P.anyChar)
+  return of(Greeting(who))
+}
+
+testParser(hi, "hi test parse!", "hi there", Greeting("there"))
+
+// testParser(hi, "hi test parse failure!", "no match", Greeting("this fails"))

@@ -1,4 +1,5 @@
 import { Left, Right } from "Either"
+import { read } from "File"
 import IO from "IO"
 import Parse from "Parse"
 import String from "String"
@@ -10,8 +11,8 @@ import Wish from "Wish"
 TestError = Test.Error
 
 
-testParser :: (Show a, Eq a) => Parse.Parser a -> String -> a -> Wish Test.AssertionError {}
-export testParser = (parser, toParse, expected) => pipe(
+assessParser :: (Show a, Eq a) => Parse.Parser a -> String -> a -> Wish Test.AssertionError {}
+export assessParser = (parser, toParse, expected) => pipe(
   Parse.runParser(parser),
   where {
     Left(Parse.Error(Parse.Loc(a, b, c))) =>
@@ -34,12 +35,26 @@ export testParser = (parser, toParse, expected) => pipe(
   },
 )(toParse)
 
-parseTest :: (Show a, Eq a) => String
-  -> Parse.Parser a
+testParser :: (Show a, Eq a) => Parse.Parser a
+  -> String
   -> String
   -> a
   -> Wish Test.TestResult Test.TestResult
-export parseTest = (testName, parser, toParse, expected) => Test.test(
+export testParser = (parser, testName, toParse, expected) => Test.test(
   testName,
-  () => testParser(parser, toParse, expected),
+  () => assessParser(parser, toParse, expected),
+)
+
+testParseFile :: (Show a, Eq a) => String
+  -> String
+  -> Parse.Parser a
+  -> a
+  -> Wish Test.TestResult Test.TestResult
+export testParseFile = (filePath, testName, parser, expected) => Test.test(
+  testName,
+  () => pipe(
+    read,
+    Wish.mapRej(() => TestError("File reading error")),
+    chain((content) => assessParser(parser, content, expected)),
+  )(filePath),
 )
