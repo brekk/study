@@ -1,6 +1,6 @@
 {
   "name": "study",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "src/Study.mad",
   "importAliases": {
     ".": "src"
