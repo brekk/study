@@ -1,5 +1,6 @@
 import Term from "Terminal"
 import { assertEquals, test } from "Test"
+import { chainRej } from "Wish"
 
 
 
@@ -24,9 +25,23 @@ _templateChainTest = (name, fn, i, o) => test(
   )(i),
 )
 
+_templateChainRejTest = (name, fn, i, o) => test(
+  _printReport(name, i),
+  () => pipe(
+    fn,
+    chainRej(assertEquals(o)),
+  )(i),
+)
+
 export asyncReport = (fn, name, listInOut) => pipe(
   map(where { #[i, o] => _templateChainTest(name, fn, i, o) }),
 )(listInOut)
+export reportAsync = asyncReport
+
+export asyncFail = (fn, name, listInOut) => pipe(
+  map(where { #[i, o] => _templateChainRejTest(name, fn, i, o) }),
+)(listInOut)
+export failAsync = asyncFail
 
 caseN2 :: (a -> b -> c) -> #[a, b] -> c
 export caseN2 = (fn, pair) => where(pair) {
