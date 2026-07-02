@@ -20,12 +20,14 @@ export assessParser = (parser, toParse, expected) => pipe(
         before = String.slice(0, a, toParse)
         after = String.slice(a, String.length(toParse), toParse)
         parseError = `Parsing error: (${show(a)} ${show(b)} ${show(c)})`
-        detail = `
+        detail = (
+          `
 ██████████████████████
 ➡︎${IO.green(before)}⬅︎
 ▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚▚
 ◣${IO.red(after)}◢
 ██████████████████████`
+        )
         IO.putLine(parseError ++ detail)
         return Wish.bad(TestError(parseError))
       }

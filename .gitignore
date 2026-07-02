@@ -13,3 +13,4 @@ node_modules
 .tests
 .vscode
 .repl
+.DS_Store
