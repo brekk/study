@@ -1,0 +1,19 @@
+[[repos]]
+repo = "builtin"
+hooks = [
+  { id = "check-json" },
+  { id = "check-toml" },
+  { id = "end-of-file-fixer" },
+]
+
+[[repos]]
+repo = "local"
+hooks = [
+  {
+    id ="madlib-format",
+    name="madlib format",
+    entry="bash -c 'for x in \"$@\"; do madlib format -i \"$x\" --fix; done' --",
+    language="system",
+    files = "\\.mad$"
+  }
+]
