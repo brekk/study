@@ -6,28 +6,39 @@ import Wish from "Wish"
 
 
 
+// we can't actually use this signature because Test doesn't export TestResult
+// so future task
+// import type { TestResult } from "Test"
+
+
 _printer = pipe(
   show,
   Term.ansiColor([Term.ansi.FormatBold, Term.ansi.FGBrightYellow]),
 )
-_printReport = (name, i) => `${name}
-  ↳ ${_printer(i)}`
-// we can't actually use this signature because Test doesn't export TestResult
-// so future task
-// _createTest :: String -> (a -> b) -> a -> b -> Wish TestResult TestResult
-_createTest = (name, fn, i, o) => test(_printReport(name, i), () => assertEquals(fn(i), o))
+CONNECTION = "  ↳ "
+_printReport = (name, i) => pipe(
+  _printer,
+  mappend(name ++ "\n" ++ CONNECTION),
+)(i)
+_createTestWithPrinter = (printer, name, fn, i, o) => test(
+  printer(name, i),
+  () => assertEquals(fn(i), o),
+)
+export reportWithPrinter = (printer, fn, name, io) => map(
+  (#[i, o]) => _createTestWithPrinter(printer, name, fn, i, o),
+  io,
+)
 // report :: (a -> b) -> String -> List #[a, b] -> Wish TestResult TestResult
-export report = (fn, name, listInOut) => map((#[i, o]) => _createTest(name, fn, i, o), listInOut)
-_templateTest = (call, name, fn, i) => test(
-  _printReport(name, i),
+export report = reportWithPrinter(_printReport)
+_templateTestWithPrinter = (printer, call, name, fn, i) => test(
+  printer(name, i),
   () => pipe(
     fn,
     call,
   )(i),
 )
-// _templateChainTest :: String -> (a -> b) -> a -> b -> Wish TestResult TestResult
+_templateTest = _templateTestWithPrinter(_printReport)
 _templateChainTest = (name, fn, i, o) => _templateTest(chain(assertEquals(o)), name, fn, i)
-// _templateChainRejTest :: String -> (a -> b) -> a -> b -> Wish TestResult TestResult
 _templateChainRejTest = (name, fn, i, o) => _templateTest(
   Wish.chainRej(assertEquals(o)),
   name,
@@ -54,16 +65,20 @@ export caseN4 = (fn, #[a, b, c, d]) => fn(a, b, c, d)
 caseN5 :: (a -> b -> c -> d -> e -> f) -> #[a, b, c, d, e] -> f
 export caseN5 = (fn, #[a, b, c, d, e]) => fn(a, b, c, d, e)
 // for testing executables
-export executiveReport = (delegation, executable, name, listInOut) => asyncReport(
-  chain(
-    pipe(
-      Process.exec(executable, $, Process.DEFAULT_COMMAND_OPTIONS),
-      delegation,
+export chiefExecutiveReport = (handwave, delegation, executable, name, data) => pipe(
+  handwave,
+  asyncReport(
+    chain(
+      pipe(
+        Process.exec(executable, $, Process.DEFAULT_COMMAND_OPTIONS),
+        delegation,
+      ),
     ),
+    name,
   ),
-  name,
-  map((#[as, bs]) => #[Wish.good(as), bs], listInOut),
-)
+)(data)
+_yeahGood = (#[as, bs]) => #[Wish.good(as), bs]
+export executiveReport = chiefExecutiveReport(map(_yeahGood))
 // got 'em!
 export powerpoint = executiveReport(
   pipe(
