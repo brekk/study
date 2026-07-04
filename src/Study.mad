@@ -66,3 +66,7 @@ caseN4 :: (a -> b -> c -> d -> e) -> #[a, b, c, d] -> e
 export caseN4 = (fn, #[a, b, c, d]) => fn(a, b, c, d)
 caseN5 :: (a -> b -> c -> d -> e -> f) -> #[a, b, c, d, e] -> f
 export caseN5 = (fn, #[a, b, c, d, e]) => fn(a, b, c, d, e)
+caseN6 :: (a -> b -> c -> d -> e -> f -> g) -> #[a, b, c, d, e, f] -> g
+export caseN6 = (fn, #[a, b, c, d, e, f]) => fn(a, b, c, d, e, f)
+caseN7 :: (a -> b -> c -> d -> e -> f -> g -> h) -> #[a, b, c, d, e, f, g] -> h
+export caseN7 = (fn, #[a, b, c, d, e, f, g]) => fn(a, b, c, d, e, f, g)
