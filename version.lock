@@ -1,5 +1,5 @@
 {
-  "buildHash": "52dc1de6abf8a04333323b80f9469d92",
+  "buildHash": "39ed32182b39b4709c80398417d34685",
   "jsApi": {
     "apiInstances": [],
     "apiAliases": {},
@@ -7,14 +7,13 @@
     "apiNames": {
       "failAsync": "(Functor m, Eq a, Show a, Show b) => (b -> Wish a {}) -> String -> m #[b, a] -> m (Wish TestResult TestResult)",
       "caseN5": "(a -> b -> c -> d -> e -> f) -> (,,,,) a b c d e -> f",
+      "reportWithPrinter": "(Show a, Eq a, Functor m) => (b -> c -> String) -> (c -> a) -> b -> m #[c, a] -> m (Wish TestResult TestResult)",
       "caseN2": "(a -> b -> c) -> #[a, b] -> c",
-      "executiveReport": "(Functor m, Eq a, Show a) => (Wish { exitCode :: Integer, stderr :: String, stdout :: String } { exitCode :: Integer, stderr :: String, stdout :: String } -> Wish AssertionError a) -> String -> String -> m #[List String, a] -> m (Wish TestResult TestResult)",
       "asyncFail": "(Show a, Show b, Eq b, Functor m) => (a -> Wish b {}) -> String -> m #[a, b] -> m (Wish TestResult TestResult)",
       "asyncReport": "(Show a, Show b, Eq b, Functor m) => (a -> Wish AssertionError b) -> String -> m #[a, b] -> m (Wish TestResult TestResult)",
       "reportAsync": "(Functor m, Eq a, Show a, Show b) => (b -> Wish AssertionError a) -> String -> m #[b, a] -> m (Wish TestResult TestResult)",
       "caseN4": "(a -> b -> c -> d -> e) -> #[a, b, c, d] -> e",
-      "report": "(Show a, Show b, Eq b, Functor m) => (a -> b) -> String -> m #[a, b] -> m (Wish TestResult TestResult)",
-      "powerpoint": "Functor m => String -> String -> m #[List String, String] -> m (Wish TestResult TestResult)",
+      "report": "(Show a, Functor m, Eq b, Show b) => (a -> b) -> String -> m #[a, b] -> m (Wish TestResult TestResult)",
       "caseN3": "(a -> b -> c -> d) -> #[a, b, c] -> d"
     },
     "apiTypes": {}
@@ -26,14 +25,13 @@
     "apiNames": {
       "failAsync": "(Functor m, Eq a, Show a, Show b) => (b -> Wish a {}) -> String -> m #[b, a] -> m (Wish TestResult TestResult)",
       "caseN5": "(a -> b -> c -> d -> e -> f) -> (,,,,) a b c d e -> f",
+      "reportWithPrinter": "(Show a, Eq a, Functor m) => (b -> c -> String) -> (c -> a) -> b -> m #[c, a] -> m (Wish TestResult TestResult)",
       "caseN2": "(a -> b -> c) -> #[a, b] -> c",
-      "executiveReport": "(Functor m, Eq a, Show a) => (Wish { exitCode :: Integer, stderr :: String, stdout :: String } { exitCode :: Integer, stderr :: String, stdout :: String } -> Wish AssertionError a) -> String -> String -> m #[List String, a] -> m (Wish TestResult TestResult)",
       "asyncFail": "(Show a, Show b, Eq b, Functor m) => (a -> Wish b {}) -> String -> m #[a, b] -> m (Wish TestResult TestResult)",
       "asyncReport": "(Show a, Show b, Eq b, Functor m) => (a -> Wish AssertionError b) -> String -> m #[a, b] -> m (Wish TestResult TestResult)",
       "reportAsync": "(Functor m, Eq a, Show a, Show b) => (b -> Wish AssertionError a) -> String -> m #[b, a] -> m (Wish TestResult TestResult)",
       "caseN4": "(a -> b -> c -> d -> e) -> #[a, b, c, d] -> e",
-      "report": "(Show a, Show b, Eq b, Functor m) => (a -> b) -> String -> m #[a, b] -> m (Wish TestResult TestResult)",
-      "powerpoint": "Functor m => String -> String -> m #[List String, String] -> m (Wish TestResult TestResult)",
+      "report": "(Show a, Functor m, Eq b, Show b) => (a -> b) -> String -> m #[a, b] -> m (Wish TestResult TestResult)",
       "caseN3": "(a -> b -> c -> d) -> #[a, b, c] -> d"
     },
     "apiTypes": {}
