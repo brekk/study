@@ -1,0 +1,48 @@
+import IO from "IO"
+import Process from "Process"
+import String from "String"
+import { Error } from "Test"
+import Wish from "Wish"
+
+import Study from "@/Study"
+
+
+
+// runAndPrint :: (String -> a -> a) -> String -> List String -> Wish TestResult TestResult
+runAndPrint = (printer, executable, args) => pipe(
+  Process.exec(executable, args),
+  printer(String.unwords([executable, ...args])),
+)(Process.DEFAULT_COMMAND_OPTIONS)
+// for testing executables
+export technicalReport = (printer, handwave, delegation, executable, name, data) => pipe(
+  handwave,
+  Study.asyncReport(
+    chain(
+      pipe(
+        runAndPrint(printer, executable),
+        delegation,
+      ),
+    ),
+    name,
+  ),
+)(data)
+_yeahGood = (#[as, bs]) => #[Wish.good(as), bs]
+export chiefExecutiveReport = technicalReport(
+  pipe(
+    mappend("running: "),
+    IO.pTrace,
+  ),
+)
+export executiveReport = chiefExecutiveReport(map(_yeahGood))
+// got 'em!
+export powerpoint = executiveReport(
+  pipe(
+    map(.stdout),
+    Wish.mapRej(
+      pipe(
+        .stderr,
+        Error,
+      ),
+    ),
+  ),
+)

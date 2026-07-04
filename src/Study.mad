@@ -1,4 +1,6 @@
+import IO from "IO"
 import Process from "Process"
+import String from "String"
 import Term from "Terminal"
 import { assertEquals, test } from "Test"
 import { Error } from "Test"
@@ -64,30 +66,3 @@ caseN4 :: (a -> b -> c -> d -> e) -> #[a, b, c, d] -> e
 export caseN4 = (fn, #[a, b, c, d]) => fn(a, b, c, d)
 caseN5 :: (a -> b -> c -> d -> e -> f) -> #[a, b, c, d, e] -> f
 export caseN5 = (fn, #[a, b, c, d, e]) => fn(a, b, c, d, e)
-// for testing executables
-export chiefExecutiveReport = (handwave, delegation, executable, name, data) => pipe(
-  handwave,
-  asyncReport(
-    chain(
-      pipe(
-        Process.exec(executable, $, Process.DEFAULT_COMMAND_OPTIONS),
-        delegation,
-      ),
-    ),
-    name,
-  ),
-)(data)
-_yeahGood = (#[as, bs]) => #[Wish.good(as), bs]
-export executiveReport = chiefExecutiveReport(map(_yeahGood))
-// got 'em!
-export powerpoint = executiveReport(
-  pipe(
-    map(.stdout),
-    Wish.mapRej(
-      pipe(
-        .stderr,
-        Error,
-      ),
-    ),
-  ),
-)
