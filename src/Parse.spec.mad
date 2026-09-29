@@ -6,8 +6,6 @@ import { testParseFile, testParser } from "@/Parse"
 
 
 type Greeting = Greeting(String)
-
-
 hi :: P.Parser Greeting
 hi = do {
   _ <- P.string("hi")
@@ -22,7 +20,6 @@ hi = do {
   )(P.anyChar)
   return of(Greeting(who))
 }
-
 testParser(hi, "hi test parse!", "hi there", Greeting("there"))
 
 // testParser(hi, "hi test parse failure!", "no match", Greeting("this fails"))

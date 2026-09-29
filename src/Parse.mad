@@ -9,8 +9,6 @@ import Wish from "Wish"
 
 
 TestError = Test.Error
-
-
 assessParser :: (Show a, Eq a) => Parse.Parser a -> String -> a -> Wish Test.AssertionError {}
 export assessParser = (parser, toParse, expected) => pipe(
   Parse.runParser(parser),
@@ -36,7 +34,6 @@ export assessParser = (parser, toParse, expected) => pipe(
       Test.assertEquals(res, expected)
   },
 )(toParse)
-
 testParser :: (Show a, Eq a) => Parse.Parser a
   -> String
   -> String
@@ -46,7 +43,6 @@ export testParser = (parser, testName, toParse, expected) => Test.test(
   testName,
   () => assessParser(parser, toParse, expected),
 )
-
 testParseFile :: (Show a, Eq a) => String
   -> String
   -> Parse.Parser a
