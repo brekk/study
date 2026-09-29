@@ -126,17 +126,39 @@ ensureSameInterface(functionOne, "function one matches our test harness")
 ensureSameInterface(functionTwo, "function two also matches our test harness")
 ```
 
+## Testing asynchronous / Wish-returning functions
+
+Study also ships with `asyncReport`, which allows you to test functions which return Wishes.
+
+```madlib
+import Study from "study"
+
+multi = map((x) => x * 2)
+asyncReport(multi, "asynchronous double", [#[Wish.good(5), 10]])
+```
+
+If you want to test against the failure path, you can use `asyncFail`:
+
+```madlib
+import Study from "study"
+import Wish from "Wish"
+
+multiFail = Wish.mapRej((x) => x * 2)
+asyncReport(multiFail, "asynchronous double happens on the failure path", [#[Wish.bad(5), 10]])
+```
+
+
 ## Command Line Interface testing
 
 In addition to the main offering, there's tooling for testing command line interfaces available from `Study/Cli`.
 
 ```madlib
-import Study from "Study"
+import Executive from "Study/Cli"
 
 EXPECTED_HELP_TEXT_OUTPUT = "blah blah blah, stakeholders"
 
-presentation = Study.powerpoint("./build/mytool")
+presentation = Executive.powerpoint("./build/mytool")
 presentation("print help", #[["--help"], EXPECTED_HELP_TEXT_OUTPUT)
 ```
 
-There's additional options under the hood, see [the source](https://github.com/brekk/study/blob/main/src/Cli.mad) for more.
+There's additional options under the hood, see [the source](https://[github.com/brekk/study/blob/main/src/Cli.mad](//github.comstudy/blob/main/github.com/brekk/study/blob/main/src/Cli.mad)) for more.

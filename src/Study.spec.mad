@@ -1,5 +1,6 @@
 import Wish from "Wish"
 
+import { powerpoint } from "@/Cli"
 import {
   asyncFail,
   asyncReport,
@@ -8,10 +9,9 @@ import {
   caseN4,
   caseN5,
   failAsync,
-  powerpoint,
   report,
   reportAsync,
-} from "./Study"
+} from "@/Study"
 
 
 
