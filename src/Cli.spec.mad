@@ -1,0 +1,78 @@
+import List from "List"
+import String from "String"
+import Test from "Test"
+import Wish from "Wish"
+
+import Chief from "@/Cli"
+import Study from "@/Study"
+
+
+
+MADLIB_HELP = `
+Usage: madlib COMMAND
+  madlib@0.27.1
+
+Available options:
+  -h,--help                Show this help text
+  -v,--version             Show version
+
+Available commands:
+  compile                  compile madlib code to js
+  repl                     start the repl
+  run                      run a madlib module or package
+  test                     test tools
+  install                  install madlib packages
+  add                      add a package dependency
+  remove                   remove a package dependency
+  package                  packages a library
+  new                      create a new project
+  doc                      generate documentation
+  format                   format code
+  lsp                      start language server
+  config                   read informations about the current installation`
+  ++ "\n"
+dropDetails = pipe(
+  String.split("\n"),
+  List.drop(7),
+  String.join("\n"),
+)
+Chief.executiveReport(
+  pipe(
+    map(
+      pipe(
+        .stdout,
+        dropDetails,
+      ),
+    ),
+    Wish.mapRej(
+      pipe(
+        .stderr,
+        Test.Error,
+      ),
+    ),
+  ),
+  "madlib",
+  "testing madlib is cool",
+  [#[["-h"], MADLIB_HELP]],
+)
+Chief.riskReport(
+  "madlib",
+  "sounds mad tasty",
+  [
+    #[
+      ["-xxx"],
+      {
+        stderr: "Invalid option `-xxx'\n\nUsage: madlib COMMAND\n  madlib@0.27.1\n",
+        stdout: "",
+        exitCode: 1,
+      },
+    ],
+  ],
+)
+Study.asyncFail(
+  pipe(
+    Chief._handleStdErr,
+  ),
+  "_handleStdErr",
+  [#[Wish.bad({ stderr: "blah", stdin: "", exitCode: 1 }), Test.Error("blah")]],
+)

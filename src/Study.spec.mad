@@ -8,6 +8,8 @@ import {
   caseN3,
   caseN4,
   caseN5,
+  caseN6,
+  caseN7,
   failAsync,
   report,
   reportAsync,
@@ -15,6 +17,10 @@ import {
 
 
 
+septenary = (a, b, c, d, e, f, g) => ((((c + d) * e) + b) + g + f) / a
+report(caseN7(septenary), "function with 7 args", [#[#[1, 2, 3, 4, 5, 6, 7], 50]])
+senary = (a, b, c, d, e, f) => (((c + d) * e) + b) / a + f
+report(caseN6(senary), "function with 6 args", [#[#[1, 2, 3, 4, 5, 6], 43]])
 quinary = (a, b, c, d, e) => (((c + d) * e) + b) / a
 report(caseN5(quinary), "function with 5 args", [#[#[1, 2, 3, 4, 5], 37]])
 quaternary = (a, b, c, d) => ((b + c) * d) / a

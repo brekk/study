@@ -1,3 +1,4 @@
+import Fn from "Function"
 import IO from "IO"
 import Process from "Process"
 import String from "String"
@@ -14,35 +15,45 @@ runAndPrint = (printer, executable, args) => pipe(
   printer(String.unwords([executable, ...args])),
 )(Process.DEFAULT_COMMAND_OPTIONS)
 // for testing executables
-export technicalReport = (printer, handwave, delegation, executable, name, data) => pipe(
-  handwave,
-  Study.asyncReport(
+export technicalWork = (consultant, printer, prep, postCost, executable, name, data) => pipe(
+  prep,
+  consultant(
     chain(
       pipe(
         runAndPrint(printer, executable),
-        delegation,
+        postCost,
       ),
     ),
     name,
   ),
 )(data)
+export technicalReport = technicalWork(Study.asyncReport)
+export technicalFailureReport = technicalWork(Study.asyncFail)
+_logStep = pipe(
+  mappend("running: "),
+  IO.pTrace,
+)
+export chiefExecutiveReport = technicalReport(_logStep)
+export chiefExecutiveFailureReport = technicalFailureReport(_logStep)
 _yeahGood = (#[as, bs]) => #[Wish.good(as), bs]
-export chiefExecutiveReport = technicalReport(
+export executiveReport = chiefExecutiveReport(map(_yeahGood))
+export executiveFailureReport = chiefExecutiveFailureReport(map(_yeahGood))
+export _handleStdErr = Wish.mapRej(
   pipe(
-    mappend("running: "),
-    IO.pTrace,
+    .stderr,
+    Error,
   ),
 )
-export executiveReport = chiefExecutiveReport(map(_yeahGood))
 // got 'em!
 export powerpoint = executiveReport(
   pipe(
     map(.stdout),
-    Wish.mapRej(
-      pipe(
-        .stderr,
-        Error,
-      ),
-    ),
+    _handleStdErr,
+  ),
+)
+export riskReport = executiveFailureReport(
+  pipe(
+    map(.stdout),
+    map(Fn.always({})),
   ),
 )

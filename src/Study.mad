@@ -1,63 +1,88 @@
-import IO from "IO"
-import Process from "Process"
-import String from "String"
 import Term from "Terminal"
-import { assertEquals, test } from "Test"
-import { Error } from "Test"
+import Test from "Test"
 import Wish from "Wish"
 
 
 
-// we can't actually use this signature because Test doesn't export TestResult
-// so future task
-// import type { TestResult } from "Test"
-
-
+// alias Grade a = Wish Test.TestResult a
+_printer :: Show a => a -> String
 _printer = pipe(
   show,
   Term.ansiColor([Term.ansi.FormatBold, Term.ansi.FGBrightYellow]),
 )
 CONNECTION = "  ↳ "
+alias Printer a = String -> a -> String
+_printReport :: Show a => Printer a
 _printReport = (name, i) => pipe(
   _printer,
   mappend(name ++ "\n" ++ CONNECTION),
 )(i)
-_createTestWithPrinter = (printer, name, fn, i, o) => test(
+// _createTestWithPrinter :: (Eq a, Eq b, Show a, Show b) => Printer a
+//   -> String
+//   -> (a -> b)
+//   -> a
+//   -> b
+//   -> Grade a
+_createTestWithPrinter = (printer, name, fn, i, o) => Test.test(
   printer(name, i),
-  () => assertEquals(fn(i), o),
+  () => Test.assertEquals(fn(i), o),
 )
+// reportWithPrinter :: (Eq a, Eq b, Show a, Show b) => Printer a
+//   -> (a -> b)
+//   -> String
+//   -> List #[a, b]
+//   -> List (Grade a)
 export reportWithPrinter = (printer, fn, name, io) => map(
   (#[i, o]) => _createTestWithPrinter(printer, name, fn, i, o),
   io,
 )
-// report :: (a -> b) -> String -> List #[a, b] -> Wish TestResult TestResult
+// report :: (Show a, Show b, Eq a, Eq b) => (a -> b) -> String -> List #[a, b] -> List (Grade a)
 export report = reportWithPrinter(_printReport)
-_templateTestWithPrinter = (printer, call, name, fn, i) => test(
+// _templateTestWithPrinter :: (Show a, Show b, Eq a, Eq b) => Printer a
+//   -> (b -> c)
+//   -> String
+//   -> (a -> b)
+//   -> a
+//   -> Grade a
+_templateTestWithPrinter = (printer, call, name, fn, i) => Test.test(
   printer(name, i),
   () => pipe(
     fn,
     call,
   )(i),
 )
+// _templateTest :: (Show a, Show b, Eq a, Eq b) => (b -> c) -> String -> (a -> b) -> a -> Grade a
 _templateTest = _templateTestWithPrinter(_printReport)
-_templateChainTest = (name, fn, i, o) => _templateTest(chain(assertEquals(o)), name, fn, i)
+// _templateChainTest :: (Show a, Show b, Eq a, Eq b) => String
+//   -> (a -> b)
+//   -> a
+//   -> Test.TestResult
+//   -> Grade a
+_templateChainTest = (name, fn, i, o) => _templateTest(chain(Test.assertEquals(o)), name, fn, i)
 _templateChainRejTest = (name, fn, i, o) => _templateTest(
-  Wish.chainRej(assertEquals(o)),
+  Wish.chainRej(Test.assertEquals(o)),
   name,
   fn,
   i,
 )
+// asyncReport :: (Show a, Show b, Eq a, Eq b) => (a -> b)
+//   -> String
+//   -> List #[a, Test.TestResult]
+//   -> List (Grade a)
 export asyncReport = (fn, name, listInOut) => pipe(
   map((#[i, o]) => _templateChainTest(name, fn, i, o)),
 )(listInOut)
 // because words are hard and memories are fallible
+
 export reportAsync = asyncReport
+// asyncFail :: (Show a, Show b, Eq a, Eq b) => (a -> b)
+//   -> String
+//   -> List #[a, Test.TestResult]
+//   -> List (Grade a)
 export asyncFail = (fn, name, listInOut) => pipe(
   map((#[i, o]) => _templateChainRejTest(name, fn, i, o)),
 )(listInOut)
 export failAsync = asyncFail
-/* the separate `ranked` module does this now, if someone wants go over 5 arity */
-
 caseN2 :: (a -> b -> c) -> #[a, b] -> c
 export caseN2 = (fn, #[a, b]) => fn(a, b)
 caseN3 :: (a -> b -> c -> d) -> #[a, b, c] -> d
