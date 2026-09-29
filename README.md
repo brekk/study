@@ -126,15 +126,22 @@ ensureSameInterface(functionOne, "function one matches our test harness")
 ensureSameInterface(functionTwo, "function two also matches our test harness")
 ```
 
+If you had a list of functions, you could happily `map` over a list of things and generate a list of tests, the same way you would anything else:
+
+```madlib
+map(Study.report($, "we're all just spanning time. but it amounts to the same", MY_HARNESS_TEST_TUPLES), LIST_OF_A_DOZEN_FUNCTIONS)
+```
+
 ## Testing asynchronous / Wish-returning functions
 
 Study also ships with `asyncReport`, which allows you to test functions which return Wishes.
 
 ```madlib
 import Study from "study"
+import Wish from "Wish"
 
 multi = map((x) => x * 2)
-asyncReport(multi, "asynchronous double", [#[Wish.good(5), 10]])
+Study.asyncReport(multi, "asynchronous double", [#[Wish.good(5), 10]])
 ```
 
 If you want to test against the failure path, you can use `asyncFail`:
@@ -144,9 +151,10 @@ import Study from "study"
 import Wish from "Wish"
 
 multiFail = Wish.mapRej((x) => x * 2)
-asyncReport(multiFail, "asynchronous double happens on the failure path", [#[Wish.bad(5), 10]])
+Study.asyncFail(multiFail, "asynchronous double happens on the failure path", [#[Wish.bad(5), 10]])
 ```
 
+(Memories are fallible and sometimes we need a lil help: `reportAsync` and `failAsync` are helpful aliases that do what you'd expect here.)
 
 ## Command Line Interface testing
 
@@ -161,4 +169,4 @@ presentation = Executive.powerpoint("./build/mytool")
 presentation("print help", #[["--help"], EXPECTED_HELP_TEXT_OUTPUT)
 ```
 
-There's additional options under the hood, see [the source](https://[github.com/brekk/study/blob/main/src/Cli.mad](//github.comstudy/blob/main/github.com/brekk/study/blob/main/src/Cli.mad)) for more.
+There's additional options under the hood, see [the source](//github.com/brekk/study/blob/main/src/Cli.mad) for more.
