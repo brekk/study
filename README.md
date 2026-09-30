@@ -17,6 +17,8 @@ Here's the basic example, for a unary function (one input, one output):
 import { aUnaryFunction } from "@/MyProject"
 import Study from "study"
 
+givenInput = true
+expectedOutput = true
 Study.report(
   aUnaryFunction,
   "the name of the test for aUnaryFunction",
@@ -34,6 +36,8 @@ To compare, the equivalent using only Prelude / standard library from Madlib:
 import { aUnaryFunction } from "@/MyProject"
 import { test, assertEquals } from "Test"
 
+givenInput = true
+expectedOutput = true
 test("the name of the test for aUnaryFunction", () => {
   return assertEquals(givenInput, expectedOutput)
 })

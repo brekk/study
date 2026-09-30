@@ -1,5 +1,6 @@
 {
   "name": "study",
+  "description": "Table-driven testing for Madlib",
   "version": "0.0.8",
   "main": "src/Study.mad",
   "importAliases": {
