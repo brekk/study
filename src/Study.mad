@@ -25,7 +25,7 @@ _printReport = (name, i) => pipe(
 //   -> Grade a
 _createTestWithPrinter = (printer, name, fn, i, o) => Test.test(
   printer(name, i),
-  () => Test.assertEquals(fn(i), o),
+  () => Test.assertEquals(o, fn(i)),
 )
 // reportWithPrinter :: (Eq a, Eq b, Show a, Show b) => Printer a
 //   -> (a -> b)
@@ -58,9 +58,9 @@ _templateTest = _templateTestWithPrinter(_printReport)
 //   -> a
 //   -> Test.TestResult
 //   -> Grade a
-_templateChainTest = (name, fn, i, o) => _templateTest(chain(Test.assertEquals(o)), name, fn, i)
+_templateChainTest = (name, fn, i, o) => _templateTest(chain(Test.assertEquals($, o)), name, fn, i)
 _templateChainRejTest = (name, fn, i, o) => _templateTest(
-  Wish.chainRej(Test.assertEquals(o)),
+  Wish.chainRej(Test.assertEquals($, o)),
   name,
   fn,
   i,
