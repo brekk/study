@@ -1,0 +1,22 @@
+import List from "List"
+import String from "String"
+
+
+
+repeatChar :: Char -> Integer -> String
+export repeatChar = (x, amount) => pipe(
+  List.repeat(x),
+  String.fromList,
+)(amount)
+export spaces = repeatChar(' ')
+indent :: Integer -> String -> String
+export indent = (amount, x) => pipe(
+  String.lines,
+  map(
+    (line) => pipe(
+      spaces,
+      mappend($, line),
+    )(amount),
+  ),
+  String.unlines,
+)(x)

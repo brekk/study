@@ -1,0 +1,2 @@
+export FAIL_SYMBOL = "𐄂"
+export PASS_SYMBOL = "✓"

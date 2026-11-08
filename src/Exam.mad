@@ -1,0 +1,278 @@
+import type { AssertionError } from "Test"
+
+import Dictionary from "Dictionary"
+import { Left, Right } from "Either"
+import FilePath from "FilePath"
+import Fn from "Function"
+import IO from "IO"
+import List from "List"
+import Math from "Math"
+import { Just, Nothing, fromMaybe } from "Maybe"
+import Monad from "Monad"
+import {} from "Number"
+import Process from "Process"
+import { pShow } from "Show"
+import String from "String"
+import Term from "Terminal"
+import Terminal from "Terminal"
+import Test from "Test"
+import Tuple from "Tuple"
+import Wish from "Wish"
+
+import Whim from "whim"
+import Failure from "whim/Failure"
+
+import Collector from "@/Collector"
+import Constants from "@/Constants"
+import _String from "@/String"
+
+
+
+// total, succeeded, failed
+type ExamSuiteResult = ExamSuiteResult(Integer, Integer, Integer)
+alias CollectedTests = Dictionary String ExamSuiteResult
+export alias Collector = { getResults :: {} -> CollectedTests, setResults :: CollectedTests -> {} }
+create :: {} -> { getResults :: {} -> CollectedTests, setResults :: CollectedTests -> {} }
+export create = () => {
+  results = Dictionary.empty
+
+  getResults = () => results
+
+  setResults = (newResults) => {
+    results := newResults
+  }
+
+  return { getResults, setResults }
+}
+export type ExamResult = Aced(String) | Flunked(String, String)
+export type ExamReport = ExamReport(String, Integer, Integer, Integer)
+instance Semigroup ExamReport {
+  assoc = (a, b) => ExamReport(
+    getMessage(a) ++ getMessage(b),
+    getTotal(a) + getTotal(b),
+    getSuccessCount(a) + getSuccessCount(b),
+    getFailureCount(a) + getFailureCount(b),
+  )
+}
+export getMessage = where {
+  ExamReport(d, _, _, _) =>
+    d
+}
+export getTotal = where {
+  ExamReport(_, r, _, _) =>
+    r
+}
+export getSuccessCount = where {
+  ExamReport(_, _, s, _) =>
+    s
+}
+export getFailureCount = where {
+  ExamReport(_, _, _, f) =>
+    f
+}
+resultToReport :: ExamResult -> ExamReport
+export resultToReport = where {
+  Flunked(_, m) =>
+    ExamReport(m, 1, 0, 1)
+
+  Aced(_) =>
+    ExamReport("", 1, 1, 0)
+}
+export mergeExamReports = (a, b) => a ++ b
+instance Breakable AssertionError {
+  breaks = where {
+    Test.AssertionError(expected, actual) =>
+      Failure.Misfit("Exam", "AssertionError", renderExpectation(expected, actual))
+
+    Test.Error(e) =>
+      Failure.Misfit("Exam", "Error", e)
+
+    Test.ErrorWithMessage(m) =>
+      Failure.Misfit("Exam", "ErrorWithMessage", m)
+
+    Test.NotImplemented =>
+      Failure.Misfit("Exam", "NotImplemented", "Sorry!")
+  }
+}
+IS_COLOR_ENABLED :: Boolean
+IS_COLOR_ENABLED = do {
+  noColor = Process.getEnv("NO_COLOR")
+  return noColor == Just("") || noColor == Nothing
+}
+renderValue :: (String -> String) -> String -> String
+renderValue = (colorize, value) => pipe(
+  _String.indent(4),
+  (s) => IS_COLOR_ENABLED ? colorize(s) : s,
+)(value)
+renderIndentedPair = (k, v) => "\n  " ++ k ++ ":\n" ++ v
+renderExpectation :: String -> String -> String
+renderExpectation = (expected, actual) => renderIndentedPair(
+    "\n  Expected:\n",
+    renderValue(Term.text.brightGreen, expected),
+  )
+    ++ renderIndentedPair("\n  Actual:\n", renderValue(Term.text.brightRed, actual))
+assertEquals :: (Show a, Eq a) => a -> a -> Whim {}
+export assertEquals = (actual, expected) => actual == expected
+  ? of({})
+  : Whim.break(Test.AssertionError(pShow(expected), pShow(actual)))
+renderFailure :: String -> Failure -> String
+renderFailure = (desc, f) => {
+  showFail = IO.red(Constants.FAIL_SYMBOL ++ " " ++ desc)
+  return where(f) {
+    Failure.Failure(tag, msg, body) =>
+      if (msg == "AssertionError") {
+        showFail ++ body ++ "\n"
+      } else {
+        showFail ++ Failure.showFail(f) ++ "\n"
+      }
+
+    _ =>
+      showFail ++ Failure.showFail(f) ++ "\n"
+  }
+}
+test :: String -> (String -> Whim {}) -> Whim ExamResult
+export test = (desc, testFn) => pipe(
+  testFn,
+  Whim.attempt,
+  map(
+    where {
+      Right(_) =>
+        Aced(desc)
+
+      Left(f) =>
+        pipe(
+          renderFailure(desc),
+          Flunked(desc),
+        )(f)
+    },
+  ),
+)(desc)
+testWithTimeout :: Integer -> String -> (String -> Whim {}) -> Whim ExamResult
+export testWithTimeout = (ms, desc, testFn) => test(
+  desc,
+  pipe(
+    testFn,
+    Whim.withTimeout(ms),
+  ),
+)
+generateReportSuiteEndMessage :: List (Whim a) -> String
+generateReportSuiteEndMessage = pipe(
+  List.length,
+  Fn.ifElse(Fn.equals(0), Fn.always("No test found\n\n"), Fn.always("")),
+)
+hookFailed :: String -> Whim a -> Whim a
+hookFailed = (label) => Whim.mapFailure(
+  (f) => Failure.Failure("Exam", "SuiteHook", label ++ ": " ++ Failure.showFail(f)),
+)
+EMPTY_REPORT = ExamReport("", 0, 0, 0)
+collector = Collector.create()
+runTestSuite :: (Show e, Show f) => String
+  -> ({} -> Whim a)
+  -> ({} -> Whim b)
+  -> List (Whim ExamResult)
+  -> Wish.Wish {} ExamReport
+runTestSuite = (suitePath, beforeAll, afterAll, testsInSuite) => pipe(
+  (tests) => {
+    pipe(
+      Dictionary.insert(suitePath, Test.SuiteResult(List.length(tests), 0, 0)),
+      collector.setResults,
+    )(collector.getResults())
+
+    return tests
+  },
+  map(
+    map(
+      pipe(
+        updateSuiteResult(suitePath),
+        resultToReport,
+      ),
+    ),
+  ),
+  Whim.parallel,
+  pipe(
+    Fn.always,
+    Whim.bracket(
+      (_) => pipe(
+        afterAll,
+        hookFailed("afterAll"),
+        map(Fn.always({})),
+      )({}),
+      $,
+      hookFailed("beforeAll", beforeAll({})),
+    ),
+  ),
+  map(
+    pipe(
+      List.reduce(mergeReports, EMPTY_REPORT),
+      where {
+        TestReport(msg, total, success, failed) =>
+          (total == 0 || failed > 0)
+            ? ExamReport(
+              suitePath ++ msg ++ generateReportSuiteEndMessage(testsInSuite),
+              total,
+              success,
+              failed,
+            )
+            : ExamReport("", total, success, failed)
+      },
+    ),
+  ),
+  Whim.catchFail(
+    (err) => {
+      failSuite(suitePath)
+      n = List.length(testsInSuite)
+      return of(
+        TestReport(
+          IO.red(
+            suitePath
+              ++ "\n"
+              ++ Failure.showFail(err)
+              ++ "\n"
+              ++ generateReportSuiteEndMessage(testsInSuite),
+          ),
+          n,
+          0,
+          n,
+        ),
+      )
+    },
+  ),
+)(testsInSuite)
+runAllTestSuites :: List #[String, {} -> Whim a, {} -> Whim b, List (Whim ExamResult)] -> {}
+export runAllTestSuites = pipe(
+  map(
+    where {
+      #[path, beforeAll, afterAll, tests] =>
+        runTestSuite(path, beforeAll, afterAll, tests)
+    },
+  ),
+  Whim.parallel,
+  map(List.reduce(mergeReports, EMPTY_REPORT)),
+  Whim.fulfill(
+    (f) => {
+      pipe(
+        Failure.showFail,
+        IO.red,
+        IO.putLine,
+      )(f)
+      Process.exit(1)
+    },
+    (report) => {
+      if (!IS_COLOR_ENABLED) {
+        printSuiteResults(collector.getResults())
+      } else do {
+        {}
+      }
+
+      IO.put(getMessage(report))
+      IO.putLine(
+        `Test suites: ${show(List.length(testSuites))}  tests: ${show(getTotal(report))}  passed: ${
+          show(getSuccessCount(report))
+        }  failed: ${show(getFailureCount(report))}`,
+      )
+      if (getFailureCount(report) > 0) {
+        Process.exit(1)
+      }
+    },
+  ),
+)

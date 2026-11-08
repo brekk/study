@@ -1,1 +1,69 @@
-{"lockfileVersion": 1, "packages": {}}
+{
+  "lockfileVersion": 2,
+  "packages": {
+    "https://github.com/brekk/dye/archive/refs/tags/v0.0.12.zip": {
+      "buildHash": "fab3af92ab65115de7709f6f08cff7d7",
+      "dependencies": [
+        "https://github.com/brekk/study/archive/refs/tags/v0.0.8.zip"
+      ],
+      "name": "dye",
+      "version": "0.0.12",
+      "versionHash": "c99de30e5c0b887bc1fe2f7bc115e5f0"
+    },
+    "https://github.com/brekk/freitag/archive/refs/tags/v3.0.0.zip": {
+      "buildHash": "22971a48255f259498ca5785abb77cca",
+      "dependencies": [
+        "https://github.com/brekk/study/archive/refs/tags/v0.0.8.zip",
+        "https://github.com/brekk/party-bus/archive/refs/tags/v0.4.1.zip"
+      ],
+      "name": "freitag",
+      "version": "3.0.0",
+      "versionHash": "51fcac2d9036ff81628df5d57425329b"
+    },
+    "https://github.com/brekk/party-bus/archive/refs/tags/v0.4.1.zip": {
+      "buildHash": "1d27046384703e91885a74e9112bdd84",
+      "dependencies": [
+        "https://github.com/brekk/dye/archive/refs/tags/v0.0.12.zip",
+        "https://github.com/brekk/study/archive/refs/tags/v0.0.8.zip",
+        "https://github.com/brekk/freitag/archive/refs/tags/v3.0.0.zip"
+      ],
+      "name": "PartyBus",
+      "version": "0.4.1",
+      "versionHash": "fbdb4e61adb4ce6ae7e3614692a835b6"
+    },
+    "https://github.com/brekk/study/archive/refs/tags/v0.0.8.zip": {
+      "buildHash": "26036373971967d8901f3af3c43d0c49",
+      "dependencies": [],
+      "name": "study",
+      "version": "0.0.8",
+      "versionHash": "03afcd24d3b7852bdef203bc34360409"
+    },
+    "https://github.com/brekk/whim/archive/refs/tags/v1.0.0.zip": {
+      "buildHash": "1529f6d815cbd1ad2de6688f2ad47763",
+      "dependencies": [
+        "https://github.com/brekk/study/archive/refs/tags/v0.0.8.zip",
+        "https://github.com/brekk/party-bus/archive/refs/tags/v0.4.1.zip"
+      ],
+      "name": "whim",
+      "version": "1.0.0",
+      "versionHash": "f75e507a97674ba4e1a828c0ea086c55"
+    }
+  },
+  "resolutions": {
+    "PartyBus": {
+      "strategy": "exact",
+      "url": "https://github.com/brekk/party-bus/archive/refs/tags/v0.4.1.zip",
+      "version": "0.4.1"
+    },
+    "dye": {
+      "strategy": "latestPatch",
+      "url": "https://github.com/brekk/dye/archive/refs/tags/v0.0.12.zip",
+      "version": "0.0.12"
+    },
+    "study": {
+      "strategy": "latestPatch",
+      "url": "https://github.com/brekk/study/archive/refs/tags/v0.0.8.zip",
+      "version": "0.0.8"
+    }
+  }
+}
