@@ -1,0 +1,24 @@
+import type { Failure } from "whim/Failure"
+
+import Wish from "Wish"
+
+import Whim from "whim"
+
+import Study from "@/Study"
+
+
+
+handleFail = (badHandler, f, pair) => pipe(
+  f,
+  Whim.toWish,
+  Wish.mapRej(badHandler),
+)(pair)
+export asyncReportWithHandler = (handler, fn, name, listInOut) => pipe(
+  handleFail(handler),
+  Study.reportAsync($, name, listInOut),
+)(fn)
+export reportAsyncWithHandler = asyncReportWithHandler
+export whimFailWithHandler = (handler, fn, name, listInOut) => pipe(
+  handleFail(handler),
+  Study.asyncFail($, name, listInOut),
+)(fn)

@@ -11,9 +11,9 @@ _printer = pipe(
   Term.ansiColor([Term.ansi.FormatBold, Term.ansi.FGBrightYellow]),
 )
 CONNECTION = "  ↳ "
-alias Printer a = String -> a -> String
-_printReport :: Show a => Printer a
-_printReport = (name, i) => pipe(
+export alias Printer a = String -> a -> String
+printReport :: Show a => Printer a
+export printReport = (name, i) => pipe(
   _printer,
   mappend(name ++ "\n" ++ CONNECTION),
 )(i)
@@ -37,14 +37,14 @@ export reportWithPrinter = (printer, fn, name, io) => map(
   io,
 )
 // report :: (Show a, Show b, Eq a, Eq b) => (a -> b) -> String -> List #[a, b] -> List (Grade a)
-export report = reportWithPrinter(_printReport)
+export report = reportWithPrinter(printReport)
 // _templateTestWithPrinter :: (Show a, Show b, Eq a, Eq b) => Printer a
 //   -> (b -> c)
 //   -> String
 //   -> (a -> b)
 //   -> a
 //   -> Grade a
-_templateTestWithPrinter = (printer, call, name, fn, i) => Test.test(
+export templateTestWithPrinter = (printer, call, name, fn, i) => Test.test(
   printer(name, i),
   () => pipe(
     fn,
@@ -52,14 +52,19 @@ _templateTestWithPrinter = (printer, call, name, fn, i) => Test.test(
   )(i),
 )
 // _templateTest :: (Show a, Show b, Eq a, Eq b) => (b -> c) -> String -> (a -> b) -> a -> Grade a
-_templateTest = _templateTestWithPrinter(_printReport)
+export templateTest = templateTestWithPrinter(printReport)
 // _templateChainTest :: (Show a, Show b, Eq a, Eq b) => String
 //   -> (a -> b)
 //   -> a
 //   -> Test.TestResult
 //   -> Grade a
-_templateChainTest = (name, fn, i, o) => _templateTest(chain(Test.assertEquals($, o)), name, fn, i)
-_templateChainRejTest = (name, fn, i, o) => _templateTest(
+export templateChainTest = (name, fn, i, o) => templateTest(
+  chain(Test.assertEquals($, o)),
+  name,
+  fn,
+  i,
+)
+export templateChainRejTest = (name, fn, i, o) => templateTest(
   Wish.chainRej(Test.assertEquals($, o)),
   name,
   fn,
@@ -70,7 +75,7 @@ _templateChainRejTest = (name, fn, i, o) => _templateTest(
 //   -> List #[a, Test.TestResult]
 //   -> List (Grade a)
 export asyncReport = (fn, name, listInOut) => pipe(
-  map((#[i, o]) => _templateChainTest(name, fn, i, o)),
+  map((#[i, o]) => templateChainTest(name, fn, i, o)),
 )(listInOut)
 // because words are hard and memories are fallible
 
@@ -80,7 +85,7 @@ export reportAsync = asyncReport
 //   -> List #[a, Test.TestResult]
 //   -> List (Grade a)
 export asyncFail = (fn, name, listInOut) => pipe(
-  map((#[i, o]) => _templateChainRejTest(name, fn, i, o)),
+  map((#[i, o]) => templateChainRejTest(name, fn, i, o)),
 )(listInOut)
 export failAsync = asyncFail
 caseN2 :: (a -> b -> c) -> #[a, b] -> c

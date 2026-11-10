@@ -1,0 +1,55 @@
+import type { Wish } from "Wish"
+
+import type { Whim } from "whim"
+import type { Failure } from "whim/Failure"
+
+import Fn from "Function"
+import List from "List"
+import Test from "Test"
+
+import Whim from "whim"
+import Failure from "whim/Failure"
+
+import Study from "@/Study"
+import WhimStudy from "@/Whim"
+
+
+
+genericFail = where {
+  _ =>
+    Test.Error("Failure in the whim case")
+}
+WhimStudy.asyncReportWithHandler(
+  genericFail,
+  map(Fn.equals("blah")),
+  "asyncReportWithHandler",
+  [#[Whim.good("blah"), true], #[Whim.good("yes"), false]],
+)
+WhimStudy.reportAsyncWithHandler(
+  genericFail,
+  map(Fn.equals("blah")),
+  "reportAsyncWithHandler",
+  [#[Whim.good("blah"), true], #[Whim.good("yes"), false]],
+)
+failureToAssertion = (f) => where(f) {
+  Failure.Failure(_, message, payload) =>
+    Test.AssertionError(message, payload)
+
+  Failure.ContextualFailure(_, _, inner) =>
+    failureToAssertion(inner)
+
+  Failure.Quitter(timeout) =>
+    Test.Error("Test failed after timeout of " ++ show(timeout) ++ "ms")
+
+  Failure.MultiFailure(list) =>
+    Test.Error("Multiple things failed: " ++ show(List.length(list)))
+
+  _ =>
+    Test.NotImplemented
+}
+WhimStudy.whimFailWithHandler(
+  failureToAssertion,
+  Fn.identity,
+  "whimFailWithHandler",
+  [#[Whim.bad(Failure("a", "xxx", "blah")), Test.AssertionError("xxx", "blah")]],
+)
